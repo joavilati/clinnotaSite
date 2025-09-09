@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/E:\\ClinNota\\site/**)",
+      "Read(/E:\\ClinNota\\site/**)",
+      "Read(/E:\\ClinNota\\site\\src/**)",
+      "Read(/E:\\ClinNota\\site\\src/**)",
+      "Read(/E:\\ClinNota\\site\\src/**)",
+      "Bash(npm install)",
+      "Read(/E:\\ClinNota\\site/**)",
+      "Read(/E:\\ClinNota\\site/**)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
