@@ -33,7 +33,7 @@ export function HowItWorks() {
       icon: Package,
       title: "Adicione serviços",
       subtitle: "Catálogo inteligente",
-      description: "Cadastre seus serviços com códigos CNAE e tributação automática baseada em IA",
+      description: "Cadastre seus serviços com códigos CNAE e tributação",
       details: ["Códigos CNAE automáticos", "Tributação inteligente", "Templates personalizados"],
       time: "3 min",
       color: "from-violet-500 to-purple-500",

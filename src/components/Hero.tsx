@@ -119,7 +119,7 @@ export function Hero() {
               A plataforma mais completa para prestadores de serviço que buscam 
               <span className="text-indigo-600 font-semibold"> agilidade</span>, 
               <span className="text-violet-600 font-semibold"> segurança</span> e 
-              <span className="text-purple-600 font-semibold"> conformidade</span> 
+              <span className="text-purple-600 font-semibold"> conformidade </span> 
               na emissão de notas fiscais.
             </motion.p>
           </div>

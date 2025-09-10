@@ -10,37 +10,31 @@ export function Downloads() {
       icon: Smartphone,
       title: "Google Play",
       subtitle: "Android 8.0+",
-      description: "App nativo com sincronização em tempo real e modo offline",
-      version: "v2.4.1",
-      size: "12.5 MB",
+      description: "App nativo com sincronização em tempo real",
       rating: 4.8,
       downloads: "10k+",
       color: "from-green-500 to-emerald-500",
       bgColor: "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20",
-      features: ["Modo offline", "Push notifications", "Sync automática"],
+      features: ["Segurança criptografada", "Push notifications", "Sync automática"],
       popular: false
     },
     {
       icon: Apple,
       title: "App Store", 
       subtitle: "iOS 14.0+",
-      description: "Interface otimizada para iPhone e iPad com suporte a multitasking",
-      version: "v2.4.1",
-      size: "15.2 MB",
+      description: "Interface otimizada para iPhone",
       rating: 4.9,
       downloads: "8k+",
       color: "from-blue-500 to-indigo-500",
       bgColor: "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
-      features: ["Interface adaptativa", "Suporte iPad", "Widgets iOS"],
+      features: ["Interface adaptativa", "Acessibilidade avançada", "Widgets iOS"],
       popular: false
     },
     {
       icon: Monitor,
       title: "Desktop",
-      subtitle: "Windows, macOS, Linux",
+      subtitle: "Windows",
       description: "Versão completa com recursos avançados e integração com sistemas",
-      version: "v3.1.2",
-      size: "85.4 MB",
       rating: 4.9,
       downloads: "25k+",
       color: "from-violet-500 to-purple-500",
@@ -209,12 +203,6 @@ export function Downloads() {
                       ))}
                     </div>
 
-                    {/* Informações técnicas */}
-                    <div className="flex justify-center gap-4 mb-6 text-xs text-gray-500 dark:text-gray-400">
-                      <span>v{platform.version}</span>
-                      <span>•</span>
-                      <span>{platform.size}</span>
-                    </div>
 
                     {/* Botão de download */}
                     <motion.div
@@ -242,29 +230,6 @@ export function Downloads() {
             );
           })}
         </div>
-
-        {/* Seção adicional de compatibilidade */}
-        <motion.div 
-          className="text-center bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/30 dark:border-gray-700/30"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="text-2xl mb-4">Compatibilidade total</h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-            Todos os seus dados são sincronizados automaticamente entre dispositivos. 
-            Comece no desktop, continue no celular e finalize no tablet sem perder nada.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <span>• Windows 10/11</span>
-            <span>• macOS 10.15+</span>
-            <span>• Linux Ubuntu 20.04+</span>
-            <span>• Android 8.0+</span>
-            <span>• iOS 14.0+</span>
-            <span>• iPadOS 14.0+</span>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

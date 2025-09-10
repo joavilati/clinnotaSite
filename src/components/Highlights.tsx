@@ -107,7 +107,7 @@ export function Highlights() {
             Desenvolvida especialmente para prestadores de serviço que buscam 
             <span className="text-violet-600 font-medium"> eficiência</span>, 
             <span className="text-emerald-600 font-medium"> segurança</span> e 
-            <span className="text-blue-600 font-medium"> praticidade</span> 
+            <span className="text-blue-600 font-medium"> praticidade </span> 
             na emissão de notas fiscais.
           </p>
         </motion.div>

@@ -5,10 +5,189 @@ import { Label } from "./ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
-import { Send, MessageCircle, HelpCircle, Mail, Phone, MapPin, Clock, CheckCircle } from "lucide-react";
-import { motion } from "motion/react";
+import { Send, MessageCircle, HelpCircle, Mail, Phone, MapPin, Clock, CheckCircle, AlertCircle, Check } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+    subject: "",
+    message: ""
+  });
+
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    subject: false,
+    message: false
+  });
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const formatPhone = (value: string) => {
+    // Remove tudo que não for número
+    const numbers = value.replace(/\D/g, "");
+    
+    // Limita a 11 dígitos
+    const limited = numbers.substring(0, 11);
+    
+    // Aplica a máscara
+    if (limited.length >= 11) {
+      return `(${limited.substring(0, 2)}) ${limited.substring(2, 7)}-${limited.substring(7, 11)}`;
+    } else if (limited.length >= 7) {
+      return `(${limited.substring(0, 2)}) ${limited.substring(2, 7)}-${limited.substring(7)}`;
+    } else if (limited.length >= 2) {
+      return `(${limited.substring(0, 2)}) ${limited.substring(2)}`;
+    } else if (limited.length >= 1) {
+      return `(${limited}`;
+    }
+    return limited;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    
+    if (id === "phone") {
+      const formatted = formatPhone(value);
+      setFormData(prev => ({ ...prev, [id]: formatted }));
+    } else {
+      setFormData(prev => ({ ...prev, [id]: value }));
+    }
+    
+    // Valida em tempo real se o campo já foi tocado
+    if (touched[id as keyof typeof touched]) {
+      validateField(id, value);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setTouched(prev => ({ ...prev, [id]: true }));
+    validateField(id, value);
+  };
+
+  const validateField = (id: string, value: string) => {
+    let error = "";
+    
+    switch (id) {
+      case "name":
+        if (!value.trim()) error = "Por favor, insira seu nome";
+        break;
+      case "email":
+        if (!value.trim()) {
+          error = "Por favor, insira seu e-mail";
+        } else if (!validateEmail(value)) {
+          error = "Por favor, insira um e-mail válido";
+        }
+        break;
+      case "subject":
+        if (!value.trim()) error = "Por favor, insira o assunto";
+        break;
+      case "message":
+        if (!value.trim()) error = "Por favor, escreva sua mensagem";
+        break;
+    }
+    
+    setErrors(prev => ({ ...prev, [id]: error }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      name: "",
+      email: "",
+      subject: "",
+      message: ""
+    };
+    
+    if (!formData.name.trim()) {
+      newErrors.name = "Por favor, insira seu nome";
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = "Por favor, insira seu e-mail";
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Por favor, insira um e-mail válido";
+    }
+    
+    if (!formData.subject.trim()) {
+      newErrors.subject = "Por favor, insira o assunto";
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = "Por favor, escreva sua mensagem";
+    }
+    
+    setErrors(newErrors);
+    setTouched({ name: true, email: true, subject: true, message: true });
+    
+    // Retorna true se não houver erros
+    return !Object.values(newErrors).some(error => error !== "");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      // Aqui você faria o envio do formulário
+      toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.", {
+        icon: "✅",
+        duration: 5000
+      });
+      
+      // Limpa o formulário
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        phone: "",
+        subject: "",
+        message: ""
+      });
+      setTouched({
+        name: false,
+        email: false,
+        subject: false,
+        message: false
+      });
+      setErrors({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } else {
+      toast.error("Por favor, preencha todos os campos obrigatórios", {
+        icon: "⚠️",
+        duration: 4000
+      });
+    }
+  };
+
+  const getFieldStatus = (fieldId: string) => {
+    const hasError = errors[fieldId as keyof typeof errors];
+    const isTouched = touched[fieldId as keyof typeof touched];
+    const hasValue = formData[fieldId as keyof typeof formData];
+    
+    if (!isTouched) return "default";
+    if (hasError) return "error";
+    if (hasValue && !hasError) return "success";
+    return "default";
+  };
   const faqs = [
     {
       question: "Preciso de conta para usar o ClinNota?",
@@ -22,13 +201,8 @@ export function Contact() {
     },
     {
       question: "Tem plano grátis ou período de teste?",
-      answer: "Oferecemos um período de teste gratuito de 30 dias com acesso completo a todos os recursos. Após este período, temos planos flexíveis a partir de R$ 29,90/mês para pequenos prestadores de serviço, com descontos para pagamento anual.",
+      answer: "Oferecemos um período de teste gratuito de 7 dias com acesso completo a todos os recursos. Após este período, temos planos flexíveis a partir de R$ 29,90/mês para pequenos prestadores de serviço, com descontos para pagamento anual.",
       category: "Planos"
-    },
-    {
-      question: "Como funciona a integração com sistemas contábeis?",
-      answer: "O ClinNota oferece integração nativa com os principais sistemas contábeis do mercado através de APIs e exportação automatizada. Também oferecemos suporte técnico especializado para configuração e treinamento da sua equipe.",
-      category: "Integração"
     },
     {
       question: "Os dados ficam seguros na nuvem?",
@@ -37,7 +211,7 @@ export function Contact() {
     },
     {
       question: "Qual o suporte oferecido?",
-      answer: "Oferecemos suporte técnico especializado via chat, email e telefone durante horário comercial. Clientes dos planos premium têm acesso a suporte prioritário 24/7 e treinamento personalizado.",
+      answer: "Oferecemos suporte técnico especializado via email e telefone durante horário comercial. Clientes dos planos premium têm acesso a suporte prioritário 24/7 e treinamento personalizado.",
       category: "Suporte"
     }
   ];
@@ -47,19 +221,13 @@ export function Contact() {
       icon: Mail,
       title: "E-mail",
       description: "contato@clinnota.com.br",
-      subtitle: "Resposta em até 4 horas"
+      subtitle: ""
     },
     {
       icon: Phone,
       title: "Telefone",
       description: "(11) 3000-0000",
       subtitle: "Seg à Sex, 9h às 18h"
-    },
-    {
-      icon: MessageCircle,
-      title: "Chat online",
-      description: "Disponível no app",
-      subtitle: "Resposta imediata"
     }
   ];
 
@@ -115,7 +283,7 @@ export function Contact() {
             Dúvidas sobre cadastro, sistema nacional, planos ou configuração? 
             Nossa equipe especializada está pronta para ajudar você a 
             <span className="text-blue-600 font-medium"> começar</span> ou 
-            <span className="text-indigo-600 font-medium"> otimizar</span> 
+            <span className="text-indigo-600 font-medium"> otimizar </span> 
             seu uso do ClinNota.
           </p>
         </motion.div>
@@ -137,74 +305,278 @@ export function Contact() {
                   </div>
                   <div>
                     <CardTitle className="text-2xl">Entre em contato</CardTitle>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">
-                      Resposta garantida em até 4 horas úteis
-                    </p>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="flex items-center gap-2">
-                      Nome completo
+              <CardContent className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="name" className="flex items-center gap-2 font-medium">
+                      Nome completo <span className="text-red-400 text-xs">*</span>
                     </Label>
-                    <Input 
-                      id="name" 
-                      placeholder="Como podemos te chamar?" 
-                      className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50"
-                    />
+                    <div className="relative">
+                      <Input 
+                        id="name" 
+                        placeholder="Como podemos te chamar?" 
+                        className={`bg-white/50 dark:bg-gray-800/50 transition-all duration-300 pr-10 ${
+                          getFieldStatus('name') === 'error' ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 
+                          getFieldStatus('name') === 'success' ? 'border-green-400 focus:border-green-500 focus:ring-green-500/20' : 
+                          'border-gray-200/50'
+                        }`}
+                        value={formData.name}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      <AnimatePresence mode="wait">
+                        {getFieldStatus('name') === 'success' && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0 }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                          >
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          </motion.div>
+                        )}
+                        {getFieldStatus('name') === 'error' && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0 }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                          >
+                            <AlertCircle className="w-5 h-5 text-red-400" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <AnimatePresence>
+                      {errors.name && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                          animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                            {errors.name}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="flex items-center gap-2">
-                      E-mail
+                  <div className="space-y-3">
+                    <Label htmlFor="email" className="flex items-center gap-2 font-medium">
+                      E-mail <span className="text-red-400 text-xs">*</span>
                     </Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="seu@email.com.br"
-                      className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50"
-                    />
+                    <div className="relative">
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        placeholder="seu@email.com.br"
+                        className={`bg-white/50 dark:bg-gray-800/50 transition-all duration-300 pr-10 ${
+                          getFieldStatus('email') === 'error' ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 
+                          getFieldStatus('email') === 'success' ? 'border-green-400 focus:border-green-500 focus:ring-green-500/20' : 
+                          'border-gray-200/50'
+                        }`}
+                        value={formData.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      <AnimatePresence mode="wait">
+                        {getFieldStatus('email') === 'success' && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0 }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                          >
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          </motion.div>
+                        )}
+                        {getFieldStatus('email') === 'error' && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0 }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                          >
+                            <AlertCircle className="w-5 h-5 text-red-400" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <AnimatePresence>
+                      {errors.email && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                          animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                            {errors.email}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Empresa (opcional)</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="company" className="font-medium">Empresa <span className="text-gray-400 text-xs">(opcional)</span></Label>
                     <Input 
                       id="company" 
                       placeholder="Nome da sua empresa"
-                      className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50"
+                      className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50 transition-all duration-300"
+                      value={formData.company}
+                      onChange={handleChange}
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone (opcional)</Label>
-                    <Input 
-                      id="phone" 
-                      placeholder="(11) 99999-9999"
-                      className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50"
-                    />
+                  <div className="space-y-3">
+                    <Label htmlFor="phone" className="font-medium">Telefone <span className="text-gray-400 text-xs">(opcional)</span></Label>
+                    <div className="relative">
+                      <Input 
+                        id="phone" 
+                        placeholder="(00) 00000-0000"
+                        className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50 transition-all duration-300"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        maxLength={15}
+                      />
+                      {formData.phone && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          <Phone className="w-4 h-4 text-gray-400" />
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Assunto</Label>
-                  <Input 
-                    id="subject" 
-                    placeholder="Sobre o que você gostaria de falar?"
-                    className="bg-white/50 dark:bg-gray-800/50 border-gray-200/50"
-                  />
+                <div className="space-y-3">
+                  <Label htmlFor="subject" className="flex items-center gap-2 font-medium">
+                    Assunto <span className="text-red-400 text-xs">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="subject" 
+                      placeholder="Sobre o que você gostaria de falar?"
+                      className={`bg-white/50 dark:bg-gray-800/50 transition-all duration-300 pr-10 ${
+                        getFieldStatus('subject') === 'error' ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 
+                        getFieldStatus('subject') === 'success' ? 'border-green-400 focus:border-green-500 focus:ring-green-500/20' : 
+                        'border-gray-200/50'
+                      }`}
+                      value={formData.subject}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                    <AnimatePresence mode="wait">
+                      {getFieldStatus('subject') === 'success' && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        </motion.div>
+                      )}
+                      {getFieldStatus('subject') === 'error' && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          <AlertCircle className="w-5 h-5 text-red-400" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <AnimatePresence>
+                    {errors.subject && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
+                          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                          {errors.subject}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="message">Mensagem</Label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="Descreva sua dúvida, necessidade ou sugestão. Quanto mais detalhes, melhor poderemos ajudar!"
-                    className="min-h-[140px] bg-white/50 dark:bg-gray-800/50 border-gray-200/50"
-                  />
+                <div className="space-y-3">
+                  <Label htmlFor="message" className="flex items-center gap-2 font-medium">
+                    Mensagem <span className="text-red-400 text-xs">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Textarea 
+                      id="message" 
+                      placeholder="Descreva sua dúvida, necessidade ou sugestão. Quanto mais detalhes, melhor poderemos ajudar!"
+                      className={`min-h-[140px] bg-white/50 dark:bg-gray-800/50 transition-all duration-300 pr-10 ${
+                        getFieldStatus('message') === 'error' ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 
+                        getFieldStatus('message') === 'success' ? 'border-green-400 focus:border-green-500 focus:ring-green-500/20' : 
+                        'border-gray-200/50'
+                      }`}
+                      value={formData.message}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                    <AnimatePresence mode="wait">
+                      {getFieldStatus('message') === 'success' && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          className="absolute right-3 top-3"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        </motion.div>
+                      )}
+                      {getFieldStatus('message') === 'error' && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          className="absolute right-3 top-3"
+                        >
+                          <AlertCircle className="w-5 h-5 text-red-400" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <AnimatePresence>
+                    {errors.message && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
+                          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                          {errors.message}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
                 
                 <motion.div
@@ -212,6 +584,7 @@ export function Contact() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <Button 
+                    type="submit"
                     size="lg"
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 text-lg group"
                   >
@@ -223,6 +596,7 @@ export function Contact() {
                 <div className="text-center text-sm text-gray-500 dark:text-gray-400">
                   Ao enviar, você aceita nossos termos de privacidade
                 </div>
+                </form>
               </CardContent>
             </Card>
           </motion.div>
@@ -278,12 +652,6 @@ export function Contact() {
                   <div className="flex justify-between">
                     <span>Domingo:</span>
                     <span className="text-gray-500">Fechado</span>
-                  </div>
-                </div>
-                <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                  <div className="flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Suporte premium: 24/7 via chat</span>
                   </div>
                 </div>
               </CardContent>
@@ -346,13 +714,6 @@ export function Contact() {
             transition={{ duration: 0.8, delay: 0.6 }}
             viewport={{ once: true }}
           >
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Não encontrou sua resposta?
-            </p>
-            <Button variant="outline" className="px-6">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Ver mais perguntas
-            </Button>
           </motion.div>
         </motion.div>
       </div>

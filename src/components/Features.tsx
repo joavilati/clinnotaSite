@@ -16,7 +16,7 @@ export function Features() {
           icon: User,
           title: "Cadastro Inteligente do Prestador",
           description: "Configure seus dados fiscais uma única vez com validação automática de CNPJ, inscrição municipal e certificado digital",
-          highlights: ["Validação automática", "Backup na nuvem", "Múltiplas empresas"]
+          highlights: ["Validação automática", "Backup na nuvem", "Assinatura digital integrada"]
         },
         {
           icon: MapPin,
@@ -99,8 +99,8 @@ export function Features() {
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
             Do cadastro inicial até relatórios avançados, temos tudo que sua empresa precisa 
             para uma gestão fiscal <span className="text-indigo-600 font-medium">moderna</span>, 
-            <span className="text-purple-600 font-medium">eficiente</span> e 
-            <span className="text-violet-600 font-medium">100% conforme</span>.
+            <span className="text-purple-600 font-medium"> eficiente</span> e 
+            <span className="text-violet-600 font-medium"> 100% conforme</span>.
           </p>
         </motion.div>
 
@@ -216,13 +216,6 @@ export function Features() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Button 
-                size="lg" 
-                className="group bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8"
-              >
-                Explorar todos os recursos
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
             </motion.div>
           </div>
 
