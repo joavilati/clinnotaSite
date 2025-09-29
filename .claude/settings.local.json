@@ -13,7 +13,15 @@
       "Bash(npm run dev:*)",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(test:*)",
+      "Bash(cp:*)",
+      "Bash(git checkout:*)",
+      "WebFetch(domain:docs.stripe.com)",
+      "WebSearch",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
